@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python3
 
 import argparse
 import os.path
@@ -121,20 +121,40 @@ def printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_
 
     print('')
     print('Outgoings:')
-    print('Total loans/loan parts purchased: £{}'.format(round(total_loans_purchased, 2)))
-    print('Interest paid due to loan part purchases: £{}'.format(round(loan_part_interest, 2)))
+    print('  Total loans/loan parts purchased: £{:.2f}'.format(round(total_loans_purchased, 2)))
+    print('  Interest paid due to loan part purchases: £{:.2f}'.format(round(loan_part_interest, 2)))
     print('')
     print('Incomings:')
-    print('Principal repaid: £{}'.format(round(repayment_principal, 2)))
-    print('Interest received: £{}'.format(round(repayment_interest, 2)))
+    print('  Principal repaid: £{:.2f}'.format(round(repayment_principal, 2)))
+    print('  Interest received: £{:.2f}'.format(round(repayment_interest, 2)))
     print('')
-    print('----- ----- ----- ----- -----')
+#    print('--------------------')
+#    print('')
+    print('Totals:')
+    print('  Monies transferred in to Funding Circle:\t£{:.2f}'.format(round(transfer_in, 2)))
+    print('  Monies transferred out of Funding Circle:\t£{:.2f}'.format(round(transfer_out, 2)))
+    print('\t\t\t\t\t\t--------')
+    print('  Balance:\t\t\t\t\t£{:.2f}'.format(round(transfer_in - transfer_out, 2)))
     print('')
-    print('Total monies transferred in to Funding Circle: £{}'.format(round(transfer_in, 2)))
-    print('Total monies transferred out of Funding Circle: £{}'.format(round(transfer_out, 2)))
-    print('Total interest: £{}'.format(round(profit_before_fees, 2)))
-    print('Total fees: £{}'.format(round(fee, 2)))
+    print('  Interest received:\t£{:.2f}'.format(round(profit_before_fees, 2)))
+    print('  Fees paid:\t\t£{:.2f}'.format(round(fee, 2)))
+    print('\t\t\t--------')
+    print('  Balance:\t\t£{:.2f}'.format(round(profit_before_fees - fee, 2)))
     print('')
+
+
+def parseAndPrint(filename):
+    transfer_in, transfer_out = findTransfers(filename)
+
+    loan = findLoans(filename)
+
+    loan_part_interest, loan_part_principal = findLoanParts(filename)
+
+    fee = calculateFees(filename)
+
+    repayment_interest, repayment_principal = findRepayments(filename)
+
+    printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_principal, loan_part_interest, loan_part_principal, fee)
 
 
 def main():
@@ -151,18 +171,7 @@ def main():
         print('File "{}" does not exist.'.format(args.file))
         exit(1)
 
-    transfer_in, transfer_out = findTransfers(args.file)
-
-    loan = findLoans(args.file)
-
-    loan_part_interest, loan_part_principal = findLoanParts(args.file)
-
-    fee = calculateFees(args.file)
-
-    repayment_interest, repayment_principal = findRepayments(args.file)
-
-    printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_principal, loan_part_interest, loan_part_principal, fee)
-
+    parseAndPrint(args.file)
 
 if __name__ == "__main__":
     main()
