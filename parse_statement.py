@@ -128,8 +128,6 @@ def printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_
     print('  Principal repaid: £{:.2f}'.format(round(repayment_principal, 2)))
     print('  Interest received: £{:.2f}'.format(round(repayment_interest, 2)))
     print('')
-#    print('--------------------')
-#    print('')
     print('Totals:')
     print('  Monies transferred in to Funding Circle:\t£{:.2f}'.format(round(transfer_in, 2)))
     print('  Monies transferred out of Funding Circle:\t£{:.2f}'.format(round(transfer_out, 2)))
