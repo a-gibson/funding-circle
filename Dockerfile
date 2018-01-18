@@ -1,3 +1,3 @@
 FROM python
-COPY *.py /src
+COPY *.py /src/
 CMD [“python”, “/src/parse_statements.py”]
