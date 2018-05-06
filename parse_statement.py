@@ -96,13 +96,16 @@ def calculateFees(file):
 def findRepayments(file):
     interest = 0.0
     principal = 0.0
+    recovery = 0.0
+
     interest_search_term = '(?:Early i|I)nterest repayment'
     principal_search_term = '(?:Early p|P)rincipal repayment'
+    recovery_search_term = 'Principal recovery repayment'
 
     with open(file, newline='') as csvfile:
         statement = csv.reader(csvfile, delimiter=',', quotechar='"')
 
-        # Go through each line in the statement and search for repayments (interest and principal)
+        # Go through each line in the statement and search for repayments (interest, principal and recovery)
         for line in statement:
             i_result = re.match(interest_search_term, line[1])
             if i_result:
@@ -112,10 +115,14 @@ def findRepayments(file):
             if p_result:
                 principal += float(line[2])
 
-    return interest, principal
+            r_result = re.match(recovery_search_term, line[1])
+            if r_result:
+                recovery += float(line[2])
+
+    return interest, principal, recovery
 
 
-def printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_principal, loan_part_interest, loan_part_principal, fee):
+def printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_principal, repayment_recovery, loan_part_interest, loan_part_principal, fee):
     profit_before_fees = repayment_interest - loan_part_interest
     total_loans_purchased = loan + loan_part_principal
 
@@ -127,6 +134,7 @@ def printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_
     print('Incomings:')
     print('  Principal repaid: £{:.2f}'.format(round(repayment_principal, 2)))
     print('  Interest received: £{:.2f}'.format(round(repayment_interest, 2)))
+    print('  Bad debt recovery: £{:.2f}'.format(round(repayment_recovery, 2)))
     print('')
     print('Totals:')
     print('  Monies transferred in to Funding Circle:\t£{:.2f}'.format(round(transfer_in, 2)))
@@ -136,8 +144,9 @@ def printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_
     print('')
     print('  Interest received:\t£{:.2f}'.format(round(profit_before_fees, 2)))
     print('  Fees paid:\t\t£{:.2f}'.format(round(fee, 2)))
+    print('  Bad debt recovery:\t£{:.2f}'.format(round(repayment_recovery, 2)))
     print('\t\t\t--------')
-    print('  Balance:\t\t£{:.2f}'.format(round(profit_before_fees - fee, 2)))
+    print('  Balance:\t\t£{:.2f}'.format(round(profit_before_fees - fee + repayment_recovery, 2)))
     print('')
 
 
@@ -150,9 +159,9 @@ def parseAndPrint(filename):
 
     fee = calculateFees(filename)
 
-    repayment_interest, repayment_principal = findRepayments(filename)
+    repayment_interest, repayment_principal, repayment_recovery = findRepayments(filename)
 
-    printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_principal, loan_part_interest, loan_part_principal, fee)
+    printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_principal, repayment_recovery, loan_part_interest, loan_part_principal, fee)
 
 
 def main():
