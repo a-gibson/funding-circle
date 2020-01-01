@@ -50,8 +50,8 @@ def findLoanParts(file):
     loan_part_ids = set([]) # the set ensures duplicate IDs are not stored
     loan_part_descriptions = []
 
-    interest_search_term = 'Interest (?P<value>\d+.\d+)'
-    principal_search_term = 'Principal (?P<value>\d+.\d+)'
+    interest_search_term = 'Interest [£]*(?P<value>\d+.\d+)'
+    principal_search_term = 'Principal [£]*(?P<value>\d+.\d+)'
 
     with open(file, newline='') as csvfile:
         statement = csv.reader(csvfile, delimiter=',', quotechar='"')
