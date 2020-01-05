@@ -46,12 +46,15 @@ def findLoans(file):
 def findLoanParts(file):
     interest = 0.0
     principal = 0.0
+    transfer_payment = 0.0
+
     loan_part_search_term = 'Loan Part ID (?P<id>\d+)'
     loan_part_ids = set([]) # the set ensures duplicate IDs are not stored
     loan_part_descriptions = []
 
     interest_search_term = 'Interest [£]*(?P<value>\d+\.\d+)'
     principal_search_term = 'Principal [£]*(?P<value>\d+\.\d+)'
+    transfer_payment_search_term = 'Transfer Payment [£]*-(?P<value>\d+\.\d+)'
 
     with open(file, newline='') as csvfile:
         statement = csv.reader(csvfile, delimiter=',', quotechar='"')
@@ -63,7 +66,7 @@ def findLoanParts(file):
                 loan_part_descriptions.append(line[1])
                 loan_part_ids.add(result.group('id'))
 
-    # Using the unique list of IDs, find the interest and principal paid to the seller of the loan part
+    # Using the unique list of IDs, find the interest and principal paid to the seller of the loan part and the transfer payment paid to the purchaser
     for loan_id in loan_part_ids:
         for description in loan_part_descriptions:
             description_result = re.search(loan_id, description)
@@ -72,9 +75,11 @@ def findLoanParts(file):
                 interest += float(interest_result.group('value'))
                 principal_result = re.search(principal_search_term, description)
                 principal += float(principal_result.group('value'))
+                transfer_payment_result = re.search(transfer_payment_search_term, description)
+                transfer_payment += float(transfer_payment_result.group('value'))
                 break
 
-    return interest, principal
+    return interest, principal, transfer_payment
 
 
 def calculateFees(file):
@@ -122,7 +127,7 @@ def findRepayments(file):
     return interest, principal, recovery
 
 
-def printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_principal, repayment_recovery, loan_part_interest, loan_part_principal, fee):
+def printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_principal, repayment_recovery, loan_part_interest, loan_part_principal, loan_part_transfer_payment, fee):
     profit_before_fees = repayment_interest - loan_part_interest
     total_loans_purchased = loan + loan_part_principal
 
@@ -135,6 +140,7 @@ def printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_
     print('  Principal repaid: £{:.2f}'.format(round(repayment_principal, 2)))
     print('  Interest received: £{:.2f}'.format(round(repayment_interest, 2)))
     print('  Bad debt recovery: £{:.2f}'.format(round(repayment_recovery, 2)))
+    print('  Transfer Payment: £{:.2f}'.format(round(loan_part_transfer_payment, 2)))
     print('')
     print('Totals:')
     print('  Monies transferred in to Funding Circle:\t£{:.2f}'.format(round(transfer_in, 2)))
@@ -145,8 +151,9 @@ def printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_
     print('  Interest received:\t£{:.2f}'.format(round(profit_before_fees, 2)))
     print('  Fees paid:\t\t£{:.2f}'.format(round(fee, 2)))
     print('  Bad debt recovery:\t£{:.2f}'.format(round(repayment_recovery, 2)))
+    print('  Transfer Payment:\t£{:.2f}'.format(round(loan_part_transfer_payment, 2)))
     print('\t\t\t--------')
-    print('  Balance:\t\t£{:.2f}'.format(round(profit_before_fees - fee + repayment_recovery, 2)))
+    print('  Balance:\t\t£{:.2f}'.format(round(profit_before_fees - fee + repayment_recovery + loan_part_transfer_payment, 2)))
     print('')
 
 
@@ -155,13 +162,13 @@ def parseAndPrint(filename):
 
     loan = findLoans(filename)
 
-    loan_part_interest, loan_part_principal = findLoanParts(filename)
+    loan_part_interest, loan_part_principal, loan_part_transfer_payment = findLoanParts(filename)
 
     fee = calculateFees(filename)
 
     repayment_interest, repayment_principal, repayment_recovery = findRepayments(filename)
 
-    printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_principal, repayment_recovery, loan_part_interest, loan_part_principal, fee)
+    printSummary(transfer_in, transfer_out, loan, repayment_interest, repayment_principal, repayment_recovery, loan_part_interest, loan_part_principal, loan_part_transfer_payment, fee)
 
 
 def main():
