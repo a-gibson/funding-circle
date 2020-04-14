@@ -47,8 +47,7 @@ def main():
     parser = argparse.ArgumentParser(description='Calculate total income from multiple Funding Circle monthly statements.')
 
     parser.add_argument(
-        '--path',
-        default='.',
+        'path',
         help='Path to the monthly statement.')
 
     args = parser.parse_args()
