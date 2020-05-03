@@ -65,11 +65,17 @@ class statement:
                 description_result = re.search(loan_id, description)
                 if description_result:
                     interest_result = re.search(interest_search_term, description)
-                    self.loan_parts['interest'] += float(interest_result.group('value'))
+                    if interest_result:
+                        self.loan_parts['interest'] += float(interest_result.group('value'))
+
                     principal_result = re.search(principal_search_term, description)
-                    self.loan_parts['principal'] += float(principal_result.group('value'))
+                    if principal_result:
+                        self.loan_parts['principal'] += float(principal_result.group('value'))
+
                     transfer_payment_result = re.search(transfer_payment_search_term, description)
-                    self.loan_parts['transfer_payment'] += float(transfer_payment_result.group('value'))
+                    if transfer_payment_result:
+                        self.loan_parts['transfer_payment'] += float(transfer_payment_result.group('value'))
+
                     break
 
     def calculateFees(self):
