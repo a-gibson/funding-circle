@@ -90,7 +90,7 @@ class statement:
     def findRepayments(self):
         interest_search_term = '(?:Early i|I)nterest repayment'
         principal_search_term = '(?:Early p|P)rincipal repayment'
-        recovery_search_term = 'Principal recovery repayment'
+        recovery_search_term = '(Interest|Principal) recovery repayment'
 
         # Go through each line in the statement and search for repayments (interest, principal and recovery)
         for line in self.statement:
