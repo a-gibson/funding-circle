@@ -22,8 +22,8 @@ class statement:
             self.statement = list(reader_obj)
 
     def findTransfers(self):
-        transfer_in_search_term = 'TRANSFERIN'
-        transfer_out_search_term = 'TRANSFEROUT'
+        transfer_in_search_term = r'TRANSFERIN'
+        transfer_out_search_term = r'TRANSFEROUT'
 
         for line in self.statement:
             in_result = re.search(transfer_in_search_term, line[1])
@@ -35,7 +35,7 @@ class statement:
                 self.transfers['out'] += float(line[3])
 
     def findLoans(self):
-        loan_search_term = 'Loan offer'
+        loan_search_term = r'Loan offer'
 
         # Go through each line in the statement and search for loans purchased
         for line in self.statement:
@@ -44,13 +44,13 @@ class statement:
                 self.loans += float(line[3])
 
     def findLoanParts(self):
-        loan_part_search_term = 'Loan Part ID (?P<id>\d+)'
+        loan_part_search_term = r'Loan Part ID (?P<id>\d+)'
         loan_part_ids = set([]) # the set ensures duplicate IDs are not stored
         loan_part_descriptions = []
 
-        interest_search_term = 'Interest [£]*(?P<value>\d+\.\d+)'
-        principal_search_term = 'Principal [£]*(?P<value>\d+\.\d+)'
-        transfer_payment_search_term = 'Transfer Payment [£]*-(?P<value>\d+\.\d+)'
+        interest_search_term = r'Interest [£]*(?P<value>\d+\\.\d+)'
+        principal_search_term = r'Principal [£]*(?P<value>\d+\.\d+)'
+        transfer_payment_search_term = r'Transfer Payment [£]*-(?P<value>\d+\.\d+)'
 
         # Go through each line of the statement and look for loan parts purchased
         for line in self.statement:
@@ -79,7 +79,7 @@ class statement:
                     break
 
     def calculateFees(self):
-        fee_search_term = 'Servicing fee'
+        fee_search_term = r'Servicing fee'
 
         # Go through each line in the statement and search for servicing fees
         for line in self.statement:
@@ -88,9 +88,9 @@ class statement:
                 self.fees += float(line[3])
 
     def findRepayments(self):
-        interest_search_term = '(?:Early i|I)nterest repayment'
-        principal_search_term = '(?:Early p|P)rincipal repayment'
-        recovery_search_term = '(Interest|Principal) recovery repayment'
+        interest_search_term = r'(?:Early i|I)nterest repayment'
+        principal_search_term = r'(?:Early p|P)rincipal repayment'
+        recovery_search_term = r'(Interest|Principal) recovery repayment'
 
         # Go through each line in the statement and search for repayments (interest, principal and recovery)
         for line in self.statement:
