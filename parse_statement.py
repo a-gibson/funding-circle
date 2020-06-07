@@ -65,11 +65,17 @@ class statement:
                 description_result = re.search(loan_id, description)
                 if description_result:
                     interest_result = re.search(interest_search_term, description)
-                    self.loan_parts['interest'] += float(interest_result.group('value'))
+                    if interest_result:
+                        self.loan_parts['interest'] += float(interest_result.group('value'))
+
                     principal_result = re.search(principal_search_term, description)
-                    self.loan_parts['principal'] += float(principal_result.group('value'))
+                    if principal_result:
+                        self.loan_parts['principal'] += float(principal_result.group('value'))
+
                     transfer_payment_result = re.search(transfer_payment_search_term, description)
-                    self.loan_parts['transfer_payment'] += float(transfer_payment_result.group('value'))
+                    if transfer_payment_result:
+                        self.loan_parts['transfer_payment'] += float(transfer_payment_result.group('value'))
+
                     break
 
     def calculateFees(self):
@@ -84,7 +90,7 @@ class statement:
     def findRepayments(self):
         interest_search_term = '(?:Early i|I)nterest repayment'
         principal_search_term = '(?:Early p|P)rincipal repayment'
-        recovery_search_term = 'Principal recovery repayment'
+        recovery_search_term = '(Interest|Principal) recovery repayment'
 
         # Go through each line in the statement and search for repayments (interest, principal and recovery)
         for line in self.statement:
@@ -106,28 +112,32 @@ class statement:
 
         print('')
         print('Outgoings:')
-        print('  Total loans/loan parts purchased:         £{:.2f}'.format(round(total_loans_purchased, 2)))
-        print('  Interest paid due to loan part purchases: £{:.2f}'.format(round(self.loan_parts['interest'], 2)))
-        print('  Fees paid to Funding Circle:              £{:.2f}'.format(round(self.fees, 2)))
+        print('  Total loans/loan parts purchased:\t\t£{:.2f}'.format(round(total_loans_purchased, 2)))
+        print('  Interest paid due to loan part purchases:\t£{:.2f}'.format(round(self.loan_parts['interest'], 2)))
+        print('  Fees paid to Funding Circle:\t\t\t£{:.2f}'.format(round(self.fees, 2)))
+        print('\t\t\t\t\t\t--------')
+        print('  Total outgoings:\t\t\t\t£{:.2f}'.format(round(total_loans_purchased + self.loan_parts['interest'] + self.fees, 2)))
         print('')
         print('Incomings:')
-        print('  Principal repaid:  £{:.2f}'.format(round(self.repayments['principal'], 2)))
-        print('  Interest received: £{:.2f}'.format(round(self.repayments['interest'], 2)))
-        print('  Bad debt recovery: £{:.2f}'.format(round(self.repayments['recovery'], 2)))
-        print('  Transfer Payment:  £{:.2f}'.format(round(self.loan_parts['transfer_payment'], 2)))
+        print('  Principal repaid:\t\t\t\t£{:.2f}'.format(round(self.repayments['principal'], 2)))
+        print('  Interest received:\t\t\t\t£{:.2f}'.format(round(self.repayments['interest'], 2)))
+        print('  Bad debt recovery:\t\t\t\t£{:.2f}'.format(round(self.repayments['recovery'], 2)))
+        print('  Transfer Payment:\t\t\t\t£{:.2f}'.format(round(self.loan_parts['transfer_payment'], 2)))
+        print('\t\t\t\t\t\t--------')
+        print('  Total incomings:\t\t\t\t£{:.2f}'.format(round(self.repayments['principal'] + self.repayments['interest'] + self.repayments['recovery'] + self.loan_parts['transfer_payment'], 2)))
         print('')
         print('Totals:')
         print('  Monies transferred in to Funding Circle:\t£{:.2f}'.format(round(self.transfers['in'], 2)))
         print('  Monies transferred out of Funding Circle:\t£{:.2f}'.format(round(self.transfers['out'], 2)))
         print('\t\t\t\t\t\t--------')
-        print('  Balance:\t\t\t\t\t£{:.2f}'.format(round(self.transfers['in'] - self.transfers['out'], 2)))
+        print('  Capital difference in account:\t\t£{:.2f}'.format(round(self.transfers['in'] - self.transfers['out'], 2)))
         print('')
-        print('  Net interest:\t\t£{:.2f}'.format(round(profit_before_fees, 2)))
-        print('   + Bad debt recovery:\t£{:.2f}'.format(round(self.repayments['recovery'], 2)))
-        print('   + Transfer Payment:\t£{:.2f}'.format(round(self.loan_parts['transfer_payment'], 2)))
-        print('   - Fees paid:\t\t£{:.2f}'.format(round(self.fees, 2)))
-        print('\t\t\t--------')
-        print('  Balance:\t\t£{:.2f}'.format(round(profit_before_fees - self.fees + self.repayments['recovery'] + self.loan_parts['transfer_payment'], 2)))
+        print('  Net interest:\t\t\t\t\t£{:.2f}'.format(round(profit_before_fees, 2)))
+        print('   + Bad debt recovery:\t\t\t\t£{:.2f}'.format(round(self.repayments['recovery'], 2)))
+        print('   + Transfer Payment:\t\t\t\t£{:.2f}'.format(round(self.loan_parts['transfer_payment'], 2)))
+        print('   - Fees paid:\t\t\t\t\t£{:.2f}'.format(round(self.fees, 2)))
+        print('\t\t\t\t\t\t--------')
+        print('  Monthly profit/loss:\t\t\t\t£{:.2f}'.format(round(profit_before_fees - self.fees + self.repayments['recovery'] + self.loan_parts['transfer_payment'], 2)))
         print('')
 
 
