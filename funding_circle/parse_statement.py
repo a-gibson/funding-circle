@@ -48,9 +48,9 @@ class statement:
         loan_part_ids = set([]) # the set ensures duplicate IDs are not stored
         loan_part_descriptions = []
 
-        interest_search_term = r'Interest [£]*(?P<value>\d+\\.\d+)'
-        principal_search_term = r'Principal [£]*(?P<value>\d+\.\d+)'
-        transfer_payment_search_term = r'Transfer Payment [£]*-(?P<value>\d+\.\d+)'
+        interest_search_term = r'Interest [£]?(?P<value>\d+\.\d+)'
+        principal_search_term = r'Principal [£]?(?P<value>\d+\.\d+)'
+        transfer_payment_search_term = r'Transfer Payment [£]?-(?P<value>\d+\.\d+)'
 
         # Go through each line of the statement and look for loan parts purchased
         for line in self.statement:
@@ -154,7 +154,9 @@ def parseAndPrint(filename):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Calculate total income from Funding Circle monthly statement.')
+    parser = argparse.ArgumentParser(
+        description='Calculate total income from Funding Circle monthly statement.'
+    )
 
     parser.add_argument(
         'file',
@@ -168,6 +170,7 @@ def main():
         exit(1)
 
     parseAndPrint(args.file)
+
 
 if __name__ == "__main__":
     main()
