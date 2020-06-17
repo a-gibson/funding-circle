@@ -1,4 +1,4 @@
-from funding_circle.parse_statement import statement
+from funding_circle.parse_statement import statement # pylint: disable=import-error
 
 
 def test_read_csv_file(test_data, test_statement_location):

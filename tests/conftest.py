@@ -1,6 +1,6 @@
 import pytest
 
-from funding_circle.parse_statement import statement
+from funding_circle.parse_statement import statement # pylint: disable=import-error
 
 
 @pytest.fixture(scope='session')
